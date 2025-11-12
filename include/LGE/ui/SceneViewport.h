@@ -47,6 +47,8 @@ class Camera;
 class Renderer;
 class Texture;
 class GameObject;
+class PostProcessor;
+class ExposureSystem;
 
 namespace Luminite {
     class LuminiteSubsystem;
@@ -86,8 +88,12 @@ private:
     void LoadIcons(); // Load icon textures
     void HandleMouseInput(); // Handle mouse input for selection and transform
     Math::Vector3 ScreenToWorldRay(float screenX, float screenY); // Convert screen coordinates to world ray
+    void ApplyToneMapping(); // Apply tone mapping from HDR to LDR framebuffer
     
-    std::unique_ptr<Framebuffer> m_Framebuffer;
+    std::unique_ptr<Framebuffer> m_Framebuffer;      // HDR framebuffer
+    std::unique_ptr<Framebuffer> m_LDRFramebuffer;  // LDR framebuffer for tone-mapped result
+    std::unique_ptr<PostProcessor> m_PostProcessor;
+    std::unique_ptr<ExposureSystem> m_ExposureSystem;
     Camera* m_Camera;
     uint32_t m_Width;
     uint32_t m_Height;

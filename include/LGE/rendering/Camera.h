@@ -56,6 +56,13 @@ public:
     Math::Vector3 GetPosition() const { return m_Position; }
     Math::Vector3 GetTarget() const { return m_Target; }
     Math::Vector3 GetUp() const { return m_Up; }
+    
+    // Projection parameter getters (for shadow system)
+    float GetFOV() const { return m_FOV * 180.0f / 3.14159f; } // Return in degrees
+    float GetAspectRatio() const { return m_AspectRatio; }
+    float GetNearPlane() const { return m_NearPlane; }
+    float GetFarPlane() const { return m_FarPlane; }
+    ProjectionType GetProjectionType() const { return m_ProjectionType; }
 
     // Setters
     void SetPosition(const Math::Vector3& position);

@@ -54,4 +54,6 @@ build/x64/
 # Temporary files
 *.tmp
 *.temp
+*.vcxproj.tmp*
+*.sln.tmp*
 

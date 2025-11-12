@@ -36,6 +36,7 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include "LGE/rendering/Texture.h"
 #include "LGE/rendering/Luminite/LuminiteSubsystem.h"
 #include "LGE/rendering/Luminite/LuminiteComponents.h"
+#include "LGE/rendering/Luminite/ShadowSystem.h"
 #include "imgui.h"
 #include <string>
 #include <cmath>
@@ -45,6 +46,7 @@ namespace LGE {
 Inspector::Inspector()
     : m_SelectedObject(nullptr)
     , m_LuminiteSubsystem(nullptr)
+    , m_ShadowSystem(nullptr)
     , m_IconsLoaded(false)
 {
 }
@@ -498,6 +500,29 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
             if (ImGui::Checkbox("Cast Shadows", &castShadows)) {
                 lightProps->SetCastShadows(castShadows);
                 UpdateLightInLuminite(m_SelectedObject, lightProps);
+                
+                // Update shadow system registration
+                if (m_ShadowSystem) {
+                    if (castShadows) {
+                        // Calculate direction from rotation
+                        Math::Vector3 rotation = m_SelectedObject->GetRotation();
+                        float rotX = rotation.x * 3.14159f / 180.0f;
+                        float rotY = rotation.y * 3.14159f / 180.0f;
+                        Math::Vector3 direction = Math::Vector3(
+                            std::sin(rotY) * std::cos(rotX),
+                            -std::sin(rotX),
+                            std::cos(rotY) * std::cos(rotX)
+                        );
+                        m_ShadowSystem->RegisterDirectionalLightShadow(
+                            m_SelectedObject,
+                            direction,
+                            m_SelectedObject->GetPosition(),
+                            4  // 4 cascades
+                        );
+                    } else {
+                        m_ShadowSystem->UnregisterLightShadow(m_SelectedObject);
+                    }
+                }
             }
             
             // Volumetric Scattering

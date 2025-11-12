@@ -51,8 +51,135 @@ uniform sampler2D u_BRDFLUT;
 uniform float u_IBLIntensity;
 uniform bool u_UseIBL;
 
+// Shadow mapping
+uniform sampler2D u_ShadowMap;
+uniform mat4 u_LightViewProjection;
+uniform float u_ShadowBias;
+uniform float u_ShadowNormalBias;
+uniform bool u_CastShadows;
+uniform int u_PCFSize;
+
 // Constants
 const float PI = 3.14159265359;
+
+// Physical Lighting Functions
+// Convert directional light intensity (lux) to radiance
+float LuxToRadiance(float lux) {
+    const float SUN_SOLID_ANGLE = 6.8e-5; // steradians
+    return lux / SUN_SOLID_ANGLE;
+}
+
+// Calculate directional light contribution with proper physical units
+vec3 CalculateDirectionalLightPhysical(
+    vec3 lightDirection,
+    vec3 lightColor,
+    float lightIntensityLux,
+    vec3 N,
+    vec3 V,
+    vec3 albedo,
+    float metalness,
+    float roughness
+) {
+    vec3 L = normalize(-lightDirection);
+    float NdotL = max(dot(N, L), 0.0);
+    
+    if (NdotL <= 0.0) {
+        return vec3(0.0);
+    }
+    
+    // Convert lux to radiance
+    float radiance = LuxToRadiance(lightIntensityLux);
+    
+    // Calculate BRDF (Cook-Torrance with GGX)
+    vec3 H = normalize(V + L);
+    vec3 F0 = mix(vec3(0.04), albedo, metalness);
+    
+    // NDF (GGX/Trowbridge-Reitz)
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+    float num = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+    float NDF = num / max(denom, 0.0001);
+    
+    // Geometry (Smith with Schlick-GGX)
+    float k = (roughness + 1.0) * (roughness + 1.0) / 8.0;
+    float NdotV = max(dot(N, V), 0.0);
+    float ggx1 = NdotV / (NdotV * (1.0 - k) + k);
+    float ggx2 = NdotL / (NdotL * (1.0 - k) + k);
+    float G = ggx1 * ggx2;
+    
+    // Fresnel (Schlick)
+    vec3 F = F0 + (1.0 - F0) * pow(clamp(1.0 - max(dot(H, V), 0.0), 0.0, 1.0), 5.0);
+    
+    // Specular BRDF
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * NdotV * NdotL + 0.0001;
+    vec3 specular = numerator / denominator;
+    
+    // Energy conservation
+    vec3 kS = F;
+    vec3 kD = (1.0 - kS) * (1.0 - metalness);
+    
+    // Diffuse BRDF (Lambertian)
+    vec3 diffuse = kD * albedo / PI;
+    
+    // Combine and apply radiance
+    vec3 brdf = diffuse + specular;
+    return brdf * lightColor * radiance * NdotL;
+}
+
+// Shadow sampling functions
+float CalculateShadow(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir) {
+    if (!u_CastShadows) {
+        return 1.0;
+    }
+    
+    // Perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    
+    // Transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    
+    // Check if fragment is outside shadow map
+    if (projCoords.x < 0.0 || projCoords.x > 1.0 || 
+        projCoords.y < 0.0 || projCoords.y > 1.0 ||
+        projCoords.z > 1.0) {
+        return 1.0;
+    }
+    
+    // Get depth from shadow map
+    float closestDepth = texture(u_ShadowMap, projCoords.xy).r;
+    
+    // Get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    
+    // Apply bias to prevent shadow acne
+    float bias = u_ShadowBias;
+    bias += u_ShadowNormalBias * (1.0 - abs(dot(normal, lightDir)));
+    
+    // Check if current fragment is in shadow
+    float shadow = currentDepth - bias > closestDepth ? 0.0 : 1.0;
+    
+    // PCF (Percentage Closer Filtering) for soft shadows
+    if (u_PCFSize > 0) {
+        shadow = 0.0;
+        vec2 texelSize = 1.0 / textureSize(u_ShadowMap, 0);
+        int pcfRadius = u_PCFSize / 2;
+        
+        for (int x = -pcfRadius; x <= pcfRadius; ++x) {
+            for (int y = -pcfRadius; y <= pcfRadius; ++y) {
+                float pcfDepth = texture(u_ShadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+                shadow += currentDepth - bias > pcfDepth ? 0.0 : 1.0;
+            }
+        }
+        shadow /= float((u_PCFSize * u_PCFSize));
+    }
+    
+    return shadow;
+}
 
 // ACES Tonemapping (approximate)
 vec3 ACESFilm(vec3 x) {
@@ -156,15 +283,35 @@ void main() {
     // View direction
     vec3 V = normalize(u_CameraPos - v_WorldPos);
     
-    // Light direction (directional light)
-    vec3 L = normalize(-u_LightDirection);
-    
-    // Calculate lighting
+    // Calculate lighting with physical units
     vec3 albedo = baseColor;
-    vec3 Lo = CookTorranceBRDF(N, V, L, albedo, metalness, roughness);
     
-    // Apply light color and intensity
-    Lo *= u_LightColor * u_LightIntensity * max(dot(N, L), 0.0);
+    // Use physical lighting calculation for directional light
+    // u_LightIntensity is in lux for directional lights
+    // Typical values: 100-1000 lux (indoor), 10000-100000 lux (outdoor/sun)
+    // For now, always use physical units (lux → radiance conversion)
+    // Typical sun intensity: ~100,000 lux
+    float lightIntensityLux = u_LightIntensity;
+    
+    // Use physical lighting calculation (lux → radiance conversion)
+    vec3 Lo = CalculateDirectionalLightPhysical(
+        u_LightDirection,
+        u_LightColor,
+        lightIntensityLux,  // lux
+        N, V, albedo, metalness, roughness
+    );
+    
+    // Apply shadows
+    float shadow = 1.0;
+    if (u_CastShadows) {
+        // Calculate fragment position in light space
+        vec4 fragPosLightSpace = u_LightViewProjection * vec4(v_WorldPos, 1.0);
+        vec3 lightDir = normalize(-u_LightDirection);
+        shadow = CalculateShadow(fragPosLightSpace, N, lightDir);
+    }
+    
+    // Apply shadow to lighting
+    Lo *= shadow;
     
     // IBL (Image-Based Lighting)
     vec3 F0 = mix(vec3(0.04), albedo, metalness);

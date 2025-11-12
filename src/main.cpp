@@ -44,7 +44,6 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include "LGE/rendering/DirectionalLight.h"
 #include "LGE/rendering/Material.h"
 #include "LGE/rendering/GridRenderer.h"
-#include "LGE/rendering/Luminite/LuminiteSubsystem.h"
 #include "LGE/ui/UI.h"
 #include "LGE/ui/SceneViewport.h"
 #include "LGE/ui/Hierarchy.h"
@@ -58,7 +57,6 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include "LGE/ui/ProjectSettings.h"
 #include "LGE/core/Input.h"
 #include "LGE/core/GameObject.h"
-#include "LGE/core/components/LightPropertiesComponent.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include <memory>
@@ -207,13 +205,6 @@ public:
         m_Preferences = std::make_unique<LGE::Preferences>();
         m_ProjectSettings = std::make_unique<LGE::ProjectSettings>();
         
-        // Initialize Luminite before connecting to viewport
-        m_LuminiteSubsystem = std::make_unique<LGE::Luminite::LuminiteSubsystem>();
-        if (!m_LuminiteSubsystem->Initialize()) {
-            LGE::Log::Error("Failed to initialize LuminiteSubsystem!");
-            return false;
-        }
-        
         // Connect preferences and project settings to menu bar
         m_MainMenuBar->SetPreferences(m_Preferences.get());
         m_MainMenuBar->SetProjectSettings(m_ProjectSettings.get());
@@ -230,58 +221,7 @@ public:
         
         // Set up Hierarchy callback for creating GameObjects
         m_Hierarchy->SetOnCreateGameObject([this](const std::string& type) {
-            if (type == "DirectionalLight") {
-                // Create DirectionalLight GameObject
-                auto dirLightObj = std::make_shared<LGE::GameObject>("Directional Light");
-                dirLightObj->SetPosition(LGE::Math::Vector3(0.0f, 5.0f, 0.0f));
-                dirLightObj->SetRotation(LGE::Math::Vector3(-45.0f, 30.0f, 0.0f));
-                dirLightObj->SetScale(LGE::Math::Vector3(1.0f, 1.0f, 1.0f));
-                
-                // Add LightPropertiesComponent
-                auto* lightProps = dirLightObj->AddComponent<LGE::LightPropertiesComponent>();
-                lightProps->SetColor(LGE::Math::Vector3(1.0f, 0.98f, 0.95f));  // Warm white
-                lightProps->SetIntensity(0.8f);
-                lightProps->SetTemperature(5500.0f);  // Daylight
-                lightProps->SetIndirectIntensity(1.0f);
-                lightProps->SetCastShadows(false);
-                lightProps->SetVolumetricScattering(0.0f);
-                lightProps->SetSpecularContribution(1.0f);
-                
-                // Calculate direction from rotation (simplified - using rotation as direction hint)
-                // For directional lights, direction is typically based on rotation
-                LGE::Math::Vector3 direction = LGE::Math::Vector3(0.3f, -0.8f, 0.5f);
-                direction = LGE::Math::Vector3(
-                    std::sin(dirLightObj->GetRotation().y * 3.14159f / 180.0f) * std::cos(dirLightObj->GetRotation().x * 3.14159f / 180.0f),
-                    -std::sin(dirLightObj->GetRotation().x * 3.14159f / 180.0f),
-                    std::cos(dirLightObj->GetRotation().y * 3.14159f / 180.0f) * std::cos(dirLightObj->GetRotation().x * 3.14159f / 180.0f)
-                );
-                
-                // Register with Luminite
-                if (m_LuminiteSubsystem) {
-                    LGE::Luminite::DirectionalLight luminiteDirLight;
-                    luminiteDirLight.color = lightProps->GetColor();
-                    luminiteDirLight.intensity = lightProps->GetIntensity();
-                    luminiteDirLight.direction = direction;
-                    luminiteDirLight.castShadows = lightProps->GetCastShadows();
-                    luminiteDirLight.enabled = lightProps->IsEnabled();
-                    m_LuminiteSubsystem->RegisterDirectionalLight(
-                        dirLightObj.get(),
-                        luminiteDirLight,
-                        dirLightObj->GetPosition(),
-                        direction
-                    );
-                }
-                
-                // Add to GameObjects list
-                m_GameObjects.push_back(dirLightObj);
-                
-                // Update UI panels
-                m_SceneViewport->SetGameObjects(m_GameObjects);
-                m_Hierarchy->SetGameObjects(m_GameObjects);
-                m_Hierarchy->SetSelectedObject(dirLightObj.get());
-                m_SceneViewport->SetSelectedObject(dirLightObj.get());
-                m_Inspector->SetSelectedObject(dirLightObj.get());
-            } else if (type == "Empty") {
+            if (type == "Empty") {
                 // Create empty GameObject
                 auto emptyObj = std::make_shared<LGE::GameObject>("GameObject");
                 emptyObj->SetPosition(LGE::Math::Vector3(0.0f, 0.0f, 0.0f));
@@ -324,21 +264,6 @@ public:
         m_CameraController->SetZoomSpeed(5.0f);  // Increased base zoom speed
         m_CameraController->SetMouseSensitivity(0.05f);
         m_CameraController->SetZoomLimits(0.5f, 20.0f);  // Min 0.5 units, Max 20 units
-
-        // Set default feature flags
-        uint32_t defaultFlags = static_cast<uint32_t>(LGE::Luminite::FeatureFlag::LUMA_LIT);
-        m_LuminiteSubsystem->SetFeatureFlags(defaultFlags);
-        
-        // Setup default environment
-        LGE::Luminite::LuminiteEnvironment env;
-        env.enabled = true;
-        env.ambientColor = LGE::Math::Vector3(1.0f, 1.0f, 1.0f);  // White ambient for PBR test
-        env.ambientIntensity = 0.3f;
-        env.exposure.mode = LGE::Luminite::ExposureMode::Manual;
-        env.exposure.ev100 = 0.0f;
-        env.exposure.exposure = 1.0f;
-        m_LuminiteSubsystem->SetEnvironment(env);
-        
 
         // Setup skybox
         m_Skybox = std::make_unique<LGE::Skybox>();
@@ -419,12 +344,6 @@ public:
         // Update GameObjects list in viewport
         if (m_SceneViewport) {
             m_SceneViewport->SetGameObjects(m_GameObjects);
-        }
-        
-        // Connect Luminite subsystem to viewport for exposure overlay
-        if (m_SceneViewport && m_LuminiteSubsystem) {
-            m_SceneViewport->SetLuminiteSubsystem(m_LuminiteSubsystem.get());
-            m_Inspector->SetLuminiteSubsystem(m_LuminiteSubsystem.get());
         }
         
         LGE::Log::Info("Cube setup complete!");
@@ -613,29 +532,10 @@ public:
                     shader->SetUniformMat4("u_Model", modelMatrix.GetData());
                 }
                 
-                // Lighting is now handled by Luminite subsystem
-                // Set default values if no lights are registered
-                bool isLit = m_SceneViewport ? m_SceneViewport->IsLit() : true;
-                if (isLit && m_LuminiteSubsystem) {
-                    // Get lights from Luminite subsystem
-                    const auto& lights = m_LuminiteSubsystem->GetLightsGPU();
-                    if (!lights.empty()) {
-                        const auto& light = lights[0]; // Use first light
-                        shader->SetUniform3f("u_LightDirection", light.direction.x, light.direction.y, light.direction.z);
-                        shader->SetUniform3f("u_LightColor", light.color.x, light.color.y, light.color.z);
-                        shader->SetUniform1f("u_LightIntensity", light.intensity);
-                    } else {
-                        // No lights - set default values
-                        shader->SetUniform3f("u_LightDirection", 0.0f, -1.0f, 0.0f);
-                        shader->SetUniform3f("u_LightColor", 0.0f, 0.0f, 0.0f);
-                        shader->SetUniform1f("u_LightIntensity", 0.0f);
-                    }
-                } else {
-                    // No lighting - set default values
-                    shader->SetUniform3f("u_LightDirection", 0.0f, -1.0f, 0.0f);
-                    shader->SetUniform3f("u_LightColor", 0.0f, 0.0f, 0.0f);
-                    shader->SetUniform1f("u_LightIntensity", 0.0f);
-                }
+                // Set default lighting values
+                shader->SetUniform3f("u_LightDirection", 0.0f, -1.0f, 0.0f);
+                shader->SetUniform3f("u_LightColor", 1.0f, 1.0f, 1.0f);
+                shader->SetUniform1f("u_LightIntensity", 1.0f);
                 
                 // Set view position for specular lighting
                 LGE::Math::Vector3 viewPos = m_Camera->GetPosition();
@@ -654,12 +554,6 @@ public:
             
             // Render PBR test balls
             if (m_PBRShader && m_PBRShader->GetRendererID() != 0 && m_SphereVertexArray && m_SphereIndexBuffer) {
-                // Update Luminite frame lighting UBO
-                if (m_LuminiteSubsystem) {
-                    m_LuminiteSubsystem->Update(m_Time);  // Update exposure
-                    m_LuminiteSubsystem->UpdateFrameLightingUBO(*m_Camera);
-                }
-                
                 m_PBRShader->Bind();
                 
                 // Set matrices
@@ -672,45 +566,19 @@ public:
                 LGE::Math::Vector3 cameraPos = m_Camera->GetPosition();
                 m_PBRShader->SetUniform3f("u_CameraPos", cameraPos.x, cameraPos.y, cameraPos.z);
                 
-                // Set lighting (PBR uses Luminite subsystem, so this is just for fallback)
-                bool isLit = m_SceneViewport ? m_SceneViewport->IsLit() : true;
-                if (isLit && m_LuminiteSubsystem) {
-                    // Get lights from Luminite subsystem
-                    const auto& lights = m_LuminiteSubsystem->GetLightsGPU();
-                    if (!lights.empty()) {
-                        const auto& light = lights[0]; // Use first light
-                        m_PBRShader->SetUniform3f("u_LightDirection", light.direction.x, light.direction.y, light.direction.z);
-                        m_PBRShader->SetUniform3f("u_LightColor", light.color.x, light.color.y, light.color.z);
-                        m_PBRShader->SetUniform1f("u_LightIntensity", light.intensity);
-                    } else {
-                        m_PBRShader->SetUniform3f("u_LightDirection", 0.0f, -1.0f, 0.0f);
-                        m_PBRShader->SetUniform3f("u_LightColor", 0.0f, 0.0f, 0.0f);
-                        m_PBRShader->SetUniform1f("u_LightIntensity", 0.0f);
-                    }
-                } else {
-                    m_PBRShader->SetUniform3f("u_LightDirection", 0.0f, -1.0f, 0.0f);
-                    m_PBRShader->SetUniform3f("u_LightColor", 0.0f, 0.0f, 0.0f);
-                    m_PBRShader->SetUniform1f("u_LightIntensity", 0.0f);
-                }
+                // Set default lighting values
+                m_PBRShader->SetUniform3f("u_LightDirection", 0.0f, -1.0f, 0.0f);
+                m_PBRShader->SetUniform3f("u_LightColor", 1.0f, 1.0f, 1.0f);
+                m_PBRShader->SetUniform1f("u_LightIntensity", 1.0f);
                 
-                // Set ambient
-                if (m_LuminiteSubsystem) {
-                    auto env = m_LuminiteSubsystem->GetEnvironment();
-                    m_PBRShader->SetUniform3f("u_AmbientColor", env.ambientColor.x, env.ambientColor.y, env.ambientColor.z);
-                    m_PBRShader->SetUniform1f("u_AmbientIntensity", env.ambientIntensity);
-                } else {
-                    m_PBRShader->SetUniform3f("u_AmbientColor", 1.0f, 1.0f, 1.0f);
-                    m_PBRShader->SetUniform1f("u_AmbientIntensity", 0.3f);
-                }
+                // Set default ambient
+                m_PBRShader->SetUniform3f("u_AmbientColor", 0.1f, 0.1f, 0.1f);
+                m_PBRShader->SetUniform1f("u_AmbientIntensity", 1.0f);
                 
                 // Set exposure and tonemapping
-                if (m_LuminiteSubsystem) {
-                    float exposure = m_LuminiteSubsystem->GetCurrentExposure();
-                    m_PBRShader->SetUniform1f("u_Exposure", exposure);
-                } else {
-                    m_PBRShader->SetUniform1f("u_Exposure", 1.0f);
-                }
-                m_PBRShader->SetUniform1i("u_UseTonemapping", 1);  // Enable tonemapping
+                m_PBRShader->SetUniform1f("u_Exposure", 1.0f);
+                m_PBRShader->SetUniform1i("u_UseTonemapping", 0);  // Disable tonemapping
+                m_PBRShader->SetUniform1i("u_UseIBL", 0);  // Disable IBL
                 
                 // Enable depth testing and face culling
                 glEnable(GL_DEPTH_TEST);
@@ -795,7 +663,6 @@ public:
         m_MainMenuBar.reset();
         m_SceneViewport.reset();
         m_GridRenderer.reset();
-        m_LuminiteSubsystem.reset();
         m_LitMaterial.reset();
         m_Shader.reset();
         m_VertexBuffer.reset();
@@ -818,7 +685,6 @@ private:
     std::unique_ptr<LGE::CameraController> m_CameraController;
     std::unique_ptr<LGE::Skybox> m_Skybox;
     std::map<LGE::GameObject*, std::unique_ptr<LGE::DirectionalLight>> m_DirectionalLights; // DirectionalLights attached to GameObjects
-    std::unique_ptr<LGE::Luminite::LuminiteSubsystem> m_LuminiteSubsystem;
     std::unique_ptr<LGE::SceneViewport> m_SceneViewport;
     std::unique_ptr<LGE::Details> m_Details;
     std::unique_ptr<LGE::Hierarchy> m_Hierarchy;

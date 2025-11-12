@@ -59,6 +59,15 @@ public:
     bool LoadCachedIBL(SkyLight& skyLight);
     std::string GetCacheDirectory() const { return m_CacheDirectory; }
     void SetCacheDirectory(const std::string& dir) { m_CacheDirectory = dir; }
+    
+    // SkyLight registry entry (public for access)
+    struct SkyLightEntry {
+        void* owner;
+        SkyLight* skyLight;
+    };
+    
+    // Get registered SkyLights
+    const std::vector<SkyLightEntry>& GetSkyLights() const { return m_SkyLights; }
 
 private:
     // IBL generation steps
@@ -89,10 +98,6 @@ private:
     std::unique_ptr<Shader> m_BRDFLUTShader;
     
     // SkyLight registry
-    struct SkyLightEntry {
-        void* owner;
-        SkyLight* skyLight;
-    };
     std::vector<SkyLightEntry> m_SkyLights;
     
     // Baking state

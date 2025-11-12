@@ -52,6 +52,8 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include "LGE/core/GameObject.h"
 #include "LGE/ui/UI.h"
 #include "LGE/rendering/Luminite/LuminiteSubsystem.h"
+#include "LGE/rendering/PostProcessor.h"
+#include "LGE/rendering/ExposureSystem.h"
 #include "imgui.h"
 #include "ImGuizmo.h"
 
@@ -83,6 +85,10 @@ SceneViewport::SceneViewport()
     m_StoredViewport[1] = 0;
     m_StoredViewport[2] = 1280;
     m_StoredViewport[3] = 720;
+    
+    // Initialize post-processor and exposure system
+    m_PostProcessor = std::make_unique<PostProcessor>();
+    m_ExposureSystem = std::make_unique<ExposureSystem>();
 }
 
 SceneViewport::~SceneViewport() {
@@ -98,12 +104,23 @@ void SceneViewport::BeginRender() {
         return;
     }
     
-    // Create framebuffer if it doesn't exist (OpenGL should be initialized by now)
+    // Create HDR framebuffer if it doesn't exist (OpenGL should be initialized by now)
+    // Use HDR format for PBR pipeline
     if (!m_Framebuffer) {
-        m_Framebuffer = std::make_unique<Framebuffer>(m_Width, m_Height);
+        m_Framebuffer = std::make_unique<Framebuffer>(m_Width, m_Height, EFramebufferFormat::HDR);
     }
     
-    if (!m_Framebuffer) {
+    // Create LDR framebuffer for tone-mapped result
+    if (!m_LDRFramebuffer) {
+        m_LDRFramebuffer = std::make_unique<Framebuffer>(m_Width, m_Height, EFramebufferFormat::LDR);
+    }
+    
+    // Initialize post-processor on first render
+    if (m_PostProcessor && !m_PostProcessor->IsInitialized()) {
+        m_PostProcessor->Initialize();
+    }
+    
+    if (!m_Framebuffer || !m_LDRFramebuffer) {
         return;
     }
     
@@ -124,15 +141,51 @@ void SceneViewport::BeginRender() {
 }
 
 void SceneViewport::EndRender() {
-    if (!m_Framebuffer) {
+    if (!m_Framebuffer || !m_LDRFramebuffer) {
         return;
     }
     
-    // Unbind framebuffer
+    // Unbind HDR framebuffer (we need to read from its texture, not render to it)
     m_Framebuffer->Unbind();
+    
+    // Apply tone mapping from HDR to LDR framebuffer
+    // This will bind the LDR framebuffer and render the HDR texture to it
+    ApplyToneMapping();
+    
+    // Unbind LDR framebuffer (post-processor should have already restored state, but be safe)
+    m_LDRFramebuffer->Unbind();
     
     // Restore viewport to what it was before
     glViewport(m_StoredViewport[0], m_StoredViewport[1], m_StoredViewport[2], m_StoredViewport[3]);
+}
+
+void SceneViewport::ApplyToneMapping() {
+    if (!m_PostProcessor || !m_ExposureSystem || !m_Framebuffer || !m_LDRFramebuffer) {
+        return;
+    }
+    
+    // Only update exposure system if auto exposure is enabled
+    // Otherwise, just get the current manual exposure value
+    if (m_ExposureSystem->GetAutoExposure()) {
+        // Update exposure system (auto exposure calculation)
+        // Note: This is currently disabled as glReadPixels is too slow
+        // TODO: Implement GPU-based luminance calculation
+        m_ExposureSystem->Update(0.016f, m_Framebuffer->GetColorAttachmentRendererID(), m_Width, m_Height);
+    }
+    
+    // Get current exposure
+    float exposure = m_ExposureSystem->GetExposure();
+    
+    // Render HDR texture through post-processor to LDR framebuffer
+    // The post-processor will handle all framebuffer state management
+    m_PostProcessor->RenderToFramebuffer(
+        m_Framebuffer->GetColorAttachmentRendererID(),
+        m_LDRFramebuffer->GetRendererID(),
+        m_Width,
+        m_Height,
+        exposure,
+        EToneMapperType::ACES
+    );
 }
 
 void SceneViewport::LoadIcons() {
@@ -559,6 +612,10 @@ void SceneViewport::OnUIRender() {
                 m_Framebuffer->Resize(m_Width, m_Height);
             }
             
+            if (m_LDRFramebuffer) {
+                m_LDRFramebuffer->Resize(m_Width, m_Height);
+            }
+            
             // Update camera aspect ratio
             if (m_Camera) {
                 float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
@@ -575,9 +632,11 @@ void SceneViewport::OnUIRender() {
         }
     }
 
-    // Display the framebuffer texture
-    if (m_Framebuffer && m_Width > 0 && m_Height > 0) {
-        uint64_t textureID = m_Framebuffer->GetColorAttachmentRendererID();
+    // Display the LDR framebuffer texture (tone-mapped result)
+    Framebuffer* displayFramebuffer = m_LDRFramebuffer.get(); // Use LDR (tone-mapped)
+    
+    if (displayFramebuffer && m_Width > 0 && m_Height > 0) {
+        uint64_t textureID = displayFramebuffer->GetColorAttachmentRendererID();
         ImVec2 imagePos = ImGui::GetCursorScreenPos();
         ImGui::Image(reinterpret_cast<void*>(textureID), viewportPanelSize, ImVec2(0, 1), ImVec2(1, 0));
         

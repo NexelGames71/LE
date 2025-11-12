@@ -315,6 +315,8 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\Input.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\GameObject.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\LightPropertiesComponent.cpp" />
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\LightComponent.cpp" />
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\SkyLightComponent.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Renderer.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\opengl\OpenGLRenderer.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Shader.cpp" />
@@ -331,6 +333,9 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\GridRenderer.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Luminite\LuminiteSubsystem.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Luminite\SkyLightSubsystem.cpp" />
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Luminite\ShadowSystem.cpp" />
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\PostProcessor.cpp" />
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\ExposureSystem.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\math\Matrix.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\UI.cpp" />
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\SceneViewport.cpp" />

@@ -40,6 +40,7 @@ class LightPropertiesComponent;
 
 namespace Luminite {
     class LuminiteSubsystem;
+    class ShadowSystem;
 }
 
 class Inspector {
@@ -53,6 +54,7 @@ public:
     GameObject* GetSelectedObject() const { return m_SelectedObject; }
     
     void SetLuminiteSubsystem(Luminite::LuminiteSubsystem* subsystem) { m_LuminiteSubsystem = subsystem; }
+    void SetShadowSystem(Luminite::ShadowSystem* shadowSystem) { m_ShadowSystem = shadowSystem; }
 
 private:
     void LoadIcons();
@@ -61,6 +63,7 @@ private:
     
     GameObject* m_SelectedObject;
     Luminite::LuminiteSubsystem* m_LuminiteSubsystem;
+    Luminite::ShadowSystem* m_ShadowSystem;
     
     // Icons
     std::shared_ptr<Texture> m_AddIcon;

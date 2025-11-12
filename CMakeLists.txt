@@ -38,6 +38,8 @@ set(CORE_SOURCES
     src/core/Input.cpp
     src/core/GameObject.cpp
     src/core/components/LightPropertiesComponent.cpp
+    src/core/components/LightComponent.cpp
+    src/core/components/SkyLightComponent.cpp
 )
 
 set(RENDERING_SOURCES
@@ -57,6 +59,9 @@ set(RENDERING_SOURCES
     src/rendering/GridRenderer.cpp
     src/rendering/Luminite/LuminiteSubsystem.cpp
     src/rendering/Luminite/SkyLightSubsystem.cpp
+    src/rendering/Luminite/ShadowSystem.cpp
+    src/rendering/PostProcessor.cpp
+    src/rendering/ExposureSystem.cpp
 )
 
 set(UI_SOURCES

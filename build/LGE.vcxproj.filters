@@ -22,6 +22,12 @@
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\LightPropertiesComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\LightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\SkyLightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Renderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -68,6 +74,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Luminite\SkyLightSubsystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Luminite\ShadowSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\PostProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\ExposureSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\math\Matrix.cpp">

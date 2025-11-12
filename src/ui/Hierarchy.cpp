@@ -131,11 +131,6 @@ void Hierarchy::OnUIRender() {
                     m_OnCreateGameObject("Empty");
                 }
             }
-            if (ImGui::MenuItem("Directional Light")) {
-                if (m_OnCreateGameObject) {
-                    m_OnCreateGameObject("DirectionalLight");
-                }
-            }
             ImGui::EndPopup();
         }
         
@@ -165,11 +160,6 @@ void Hierarchy::OnUIRender() {
             if (ImGui::MenuItem("Empty GameObject")) {
                 if (m_OnCreateGameObject) {
                     m_OnCreateGameObject("Empty");
-                }
-            }
-            if (ImGui::MenuItem("Directional Light")) {
-                if (m_OnCreateGameObject) {
-                    m_OnCreateGameObject("DirectionalLight");
                 }
             }
             ImGui::EndPopup();
@@ -215,12 +205,16 @@ void Hierarchy::OnUIRender() {
     // Scene hierarchy tree
     if (ImGui::TreeNode("Scene")) {
         // Show all GameObjects
-        for (auto& obj : m_GameObjects) {
+        for (size_t i = 0; i < m_GameObjects.size(); ++i) {
+            auto& obj = m_GameObjects[i];
             if (obj) {
+                // Use PushID with pointer address to ensure unique IDs
+                ImGui::PushID(static_cast<int>(reinterpret_cast<intptr_t>(obj.get())));
+                
                 bool isSelected = (m_SelectedObject == obj.get());
                 
-                // Check if this is a DirectionalLight GameObject
-                bool isLight = (obj->GetName().find("Directional Light") != std::string::npos);
+                // Check if this is a light GameObject (Directional Light or Sky Light)
+                bool isLight = (obj->GetName().find("Light") != std::string::npos);
                 
                 // Draw icon if available
                 if (isLight && m_LightActorIcon && m_LightActorIcon->GetRendererID() != 0) {
@@ -232,7 +226,9 @@ void Hierarchy::OnUIRender() {
                     ImGui::SameLine();
                 }
                 
-                if (ImGui::Selectable(obj->GetName().c_str(), isSelected)) {
+                // Use unique label with index to avoid conflicts
+                std::string label = obj->GetName() + "##" + std::to_string(i);
+                if (ImGui::Selectable(label.c_str(), isSelected)) {
                     m_SelectedObject = obj.get();
                     obj->SetSelected(true);
                     // Deselect others
@@ -242,6 +238,8 @@ void Hierarchy::OnUIRender() {
                         }
                     }
                 }
+                
+                ImGui::PopID();
             }
         }
         
