@@ -1,0 +1,52 @@
+#version 430
+
+layout(local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+layout(binding = 0) uniform sampler2D u_EquirectangularMap;
+layout(binding = 0, rgba16f) uniform writeonly image2D u_OutputCubemap;
+
+uniform float u_Resolution;
+uniform int u_Face;  // Which cubemap face to process (0-5)
+
+void main() {
+    ivec2 globalID = ivec2(gl_GlobalInvocationID.xy);
+    if (globalID.x >= int(u_Resolution) || globalID.y >= int(u_Resolution)) {
+        return;
+    }
+    
+    // Convert face index and local coordinates to direction
+    vec2 localUV = (vec2(globalID) + 0.5) / u_Resolution;
+    localUV = localUV * 2.0 - 1.0;  // -1 to 1
+    
+    vec3 dir = vec3(0.0);
+    
+    // Generate direction based on cubemap face
+    // +X, -X, +Y, -Y, +Z, -Z
+    if (u_Face == 0) {      // +X
+        dir = vec3(1.0, -localUV.y, -localUV.x);
+    } else if (u_Face == 1) { // -X
+        dir = vec3(-1.0, -localUV.y, localUV.x);
+    } else if (u_Face == 2) { // +Y
+        dir = vec3(localUV.x, 1.0, localUV.y);
+    } else if (u_Face == 3) { // -Y
+        dir = vec3(localUV.x, -1.0, -localUV.y);
+    } else if (u_Face == 4) { // +Z
+        dir = vec3(localUV.x, -localUV.y, 1.0);
+    } else if (u_Face == 5) { // -Z
+        dir = vec3(-localUV.x, -localUV.y, -1.0);
+    }
+    
+    dir = normalize(dir);
+    
+    // Convert direction to equirectangular UV
+    vec2 equirectUV;
+    equirectUV.x = atan(dir.z, dir.x) / (2.0 * 3.14159265359) + 0.5;
+    equirectUV.y = acos(dir.y) / 3.14159265359;
+    
+    // Sample equirectangular map
+    vec4 color = texture(u_EquirectangularMap, equirectUV);
+    
+    // Write to output texture (will be copied to cubemap face)
+    imageStore(u_OutputCubemap, globalID, color);
+}
+

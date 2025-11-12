@@ -1,0 +1,134 @@
+/*
+
+------------------------------------------------------------------------------
+
+Luma Engine - A Next-Generation Game Engine
+
+Copyright (c) 2025 Nexel Games. All Rights Reserved.
+
+
+
+This source code is part of the Luma Engine project developed by Nexel Games.
+
+Use of this software is governed by the Luma Engine License Agreement.
+
+
+
+Unauthorized copying of this file, via any medium, is strictly prohibited.
+
+Distribution of source or binary forms, with or without modification, is
+
+subject to the terms of the Luma Engine License.
+
+
+
+For more information, visit: https://nexelgames.com/luma-engine
+
+------------------------------------------------------------------------------
+
+*/
+
+#include "LGE/core/Window.h"
+#include "LGE/core/Log.h"
+#include "LGE/core/Input.h"
+#include <GLFW/glfw3.h>
+
+namespace LGE {
+
+Window::Window(const WindowProperties& props) {
+    Init(props);
+}
+
+Window::~Window() {
+    Shutdown();
+}
+
+void Window::Init(const WindowProperties& props) {
+    m_Data.Title = props.Title;
+    m_Data.Width = props.Width;
+    m_Data.Height = props.Height;
+    m_Data.VSync = props.VSync;
+
+    Log::Info("Creating window: " + props.Title + " (" + 
+              std::to_string(props.Width) + "x" + std::to_string(props.Height) + ")");
+
+    if (!glfwInit()) {
+        Log::Fatal("Failed to initialize GLFW!");
+        return;
+    }
+
+    // Set OpenGL version
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    m_Window = glfwCreateWindow(
+        static_cast<int>(props.Width),
+        static_cast<int>(props.Height),
+        props.Title.c_str(),
+        props.Fullscreen ? glfwGetPrimaryMonitor() : nullptr,
+        nullptr
+    );
+
+    if (!m_Window) {
+        Log::Fatal("Failed to create GLFW window!");
+        glfwTerminate();
+        return;
+    }
+
+    glfwMakeContextCurrent(m_Window);
+    SetVSync(props.VSync);
+
+    // Set user pointer for callbacks
+    glfwSetWindowUserPointer(m_Window, &m_Data);
+    
+    // Set Input window
+    Input::SetWindow(m_Window);
+    
+    // Set scroll callback
+    Input::SetScrollCallback([](GLFWwindow* window, double xoffset, double yoffset) {
+        Input::s_ScrollX = xoffset;
+        Input::s_ScrollY = yoffset;
+    });
+
+    // Window resize callback
+    glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+        WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
+        data.Width = width;
+        data.Height = height;
+        
+        if (data.EventCallback) {
+            data.EventCallback();
+        }
+    });
+
+    Log::Info("Window created successfully!");
+}
+
+void Window::Shutdown() {
+    if (m_Window) {
+        glfwDestroyWindow(m_Window);
+        m_Window = nullptr;
+    }
+    glfwTerminate();
+}
+
+void Window::OnUpdate() {
+    glfwPollEvents();
+}
+
+void Window::SwapBuffers() {
+    glfwSwapBuffers(m_Window);
+}
+
+void Window::SetVSync(bool enabled) {
+    m_Data.VSync = enabled;
+    glfwSwapInterval(enabled ? 1 : 0);
+}
+
+bool Window::ShouldClose() const {
+    return glfwWindowShouldClose(m_Window);
+}
+
+} // namespace LGE
+
