@@ -57,3 +57,6 @@ build/x64/
 *.vcxproj.tmp*
 *.sln.tmp*
 
+# Allow unreal-engine-editor-icons folder
+!unreal-engine-editor-icons/
+
