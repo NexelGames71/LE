@@ -1,0 +1,13 @@
+prefix=C:/Program Files (x86)/LGE
+exec_prefix=C:/Program Files (x86)/LGE
+libdir=C:/Program Files (x86)/LGE/lib
+sharedlibdir=C:/Program Files (x86)/LGE/lib
+includedir=C:/Program Files (x86)/LGE/include
+
+Name: zlib
+Description: zlib compression library
+Version: 1.3.1
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lz
+Cflags: -I${includedir}

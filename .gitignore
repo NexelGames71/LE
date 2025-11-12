@@ -1,5 +1,6 @@
-# Build directories
-build/
+# Build directories - exclude large binaries but allow build config
+build/bin/
+build/lib/
 out/
 bin/
 lib/
@@ -19,18 +20,33 @@ lib/
 *~
 .DS_Store
 
-# CMake
-CMakeCache.txt
+# CMake - allow CMakeCache and solution files in build folder
 CMakeFiles/
-cmake_install.cmake
+build/CMakeFiles/
 *.cmake
 !CMakeLists.txt
+!build/*.cmake
 
-# Compiled files
+# Compiled files and build artifacts
 *.o
 *.obj
+build/**/*.obj
 *.pdb
 *.ilk
+*.tlog
+build/**/*.tlog
+build/**/*.lastbuildstate
+build/**/*.recipe
+build/**/*.log
+build/**/*.bin
+
+# Build intermediate directories (but keep solution files)
+build/**/Debug/
+build/**/Release/
+build/**/MinSizeRel/
+build/**/RelWithDebInfo/
+build/**/*.dir/
+build/x64/
 
 # Logs
 *.log
