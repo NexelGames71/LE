@@ -30,6 +30,8 @@ For more information, visit: https://nexelgames.com/luma-engine
 
 #include "LGE/core/Application.h"
 #include "LGE/core/Window.h"
+#include "LGE/core/LayerStack.h"
+#include "LGE/core/SplashScreen.h"
 #include "LGE/rendering/Renderer.h"
 #include "LGE/core/Log.h"
 #include "LGE/ui/UI.h"
@@ -39,6 +41,7 @@ namespace LGE {
 
 Application::Application(const std::string& name)
     : m_Name(name), m_Running(false) {
+    m_LayerStack = std::make_unique<LayerStack>();
 }
 
 Application::~Application() {
@@ -52,6 +55,11 @@ bool Application::Initialize() {
     WindowProperties props;
     props.Title = m_Name;
     m_Window = std::make_unique<Window>(props);
+    
+    if (!m_Window || !m_Window->IsValid()) {
+        Log::Error("Failed to create window!");
+        return false;
+    }
 
     // Create renderer (OpenGL for now)
     Renderer::SetAPI(Renderer::API::OpenGL);
@@ -67,6 +75,12 @@ bool Application::Initialize() {
     // Initialize UI system (after OpenGL is initialized)
     UI::Initialize(m_Window.get());
 
+    // Create and push splash screen overlay
+    auto splashScreen = std::make_shared<SplashScreen>("assets/splash/lsplash_screen.png", 6.0f);
+    splashScreen->SetLayerStack(m_LayerStack.get());
+    splashScreen->SetWindow(m_Window.get());
+    m_LayerStack->PushOverlay(splashScreen);
+
     m_Running = true;
     Log::Info("Application initialized successfully!");
     return true;
@@ -75,6 +89,11 @@ bool Application::Initialize() {
 void Application::Run() {
     if (!m_Running) {
         Log::Error("Application not initialized!");
+        return;
+    }
+    
+    if (!m_Window || !m_Window->IsValid()) {
+        Log::Error("Window is not valid, cannot run!");
         return;
     }
 
@@ -90,8 +109,15 @@ void Application::Run() {
         
         m_Renderer->BeginFrame();
         
+        // Update layers
+        m_LayerStack->OnUpdate(deltaTime);
         OnUpdate(deltaTime);
+        
+        // Render main application UI first
         OnRender();
+        
+        // Render layers and overlays (splash screen should be on top)
+        m_LayerStack->OnRender();
         
         m_Renderer->EndFrame();
         

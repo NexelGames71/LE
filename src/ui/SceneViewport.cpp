@@ -46,12 +46,11 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include "LGE/rendering/Shader.h"
 #include "LGE/rendering/VertexArray.h"
 #include "LGE/rendering/VertexBuffer.h"
-#include "LGE/core/FileSystem.h"
+#include "LGE/core/filesystem/FileSystem.h"
 #include "LGE/core/Log.h"
 #include "LGE/core/Input.h"
-#include "LGE/core/GameObject.h"
+#include "LGE/core/scene/GameObject.h"
 #include "LGE/ui/UI.h"
-#include "LGE/rendering/Luminite/LuminiteSubsystem.h"
 #include "LGE/rendering/PostProcessor.h"
 #include "LGE/rendering/ExposureSystem.h"
 #include "imgui.h"
@@ -59,9 +58,6 @@ For more information, visit: https://nexelgames.com/luma-engine
 
 namespace LGE {
 
-void SceneViewport::SetLuminiteSubsystem(Luminite::LuminiteSubsystem* subsystem) {
-    m_LuminiteSubsystem = subsystem;
-}
 
 SceneViewport::SceneViewport()
     : m_Camera(nullptr)
@@ -77,7 +73,6 @@ SceneViewport::SceneViewport()
     , m_ShowGrid(true)
     , m_IsLit(true)
     , m_ProjectionType(0) // 0=Perspective, 1=Orthographic
-    , m_LuminiteSubsystem(nullptr)
 {
     // Don't create framebuffer here - wait until OpenGL is initialized
     // Framebuffer will be created on first render
@@ -134,6 +129,14 @@ void SceneViewport::BeginRender() {
     
     // Render scene to framebuffer
     m_Framebuffer->Bind();
+    
+    // Set viewport to match framebuffer size
+    glViewport(0, 0, m_Width, m_Height);
+    
+    // Enable depth testing (in case it was disabled)
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     

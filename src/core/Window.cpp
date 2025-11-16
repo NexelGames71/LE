@@ -72,12 +72,20 @@ void Window::Init(const WindowProperties& props) {
 
     if (!m_Window) {
         Log::Fatal("Failed to create GLFW window!");
+        const char* description;
+        int code = glfwGetError(&description);
+        if (description) {
+            Log::Fatal("GLFW Error: " + std::string(description) + " (code: " + std::to_string(code) + ")");
+        }
         glfwTerminate();
         return;
     }
 
     glfwMakeContextCurrent(m_Window);
     SetVSync(props.VSync);
+    
+    // Ensure window is visible
+    glfwShowWindow(m_Window);
 
     // Set user pointer for callbacks
     glfwSetWindowUserPointer(m_Window, &m_Data);
@@ -127,7 +135,37 @@ void Window::SetVSync(bool enabled) {
 }
 
 bool Window::ShouldClose() const {
+    if (!m_Window) return true;
     return glfwWindowShouldClose(m_Window);
+}
+
+void Window::SetSize(uint32_t width, uint32_t height) {
+    if (!m_Window) return;
+    
+    m_Data.Width = width;
+    m_Data.Height = height;
+    glfwSetWindowSize(m_Window, static_cast<int>(width), static_cast<int>(height));
+}
+
+void Window::CenterOnScreen() {
+    if (!m_Window) return;
+    
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    if (!monitor) return;
+    
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    if (!mode) return;
+    
+    int monitorX, monitorY;
+    glfwGetMonitorPos(monitor, &monitorX, &monitorY);
+    
+    int windowWidth, windowHeight;
+    glfwGetWindowSize(m_Window, &windowWidth, &windowHeight);
+    
+    int centerX = monitorX + (mode->width - windowWidth) / 2;
+    int centerY = monitorY + (mode->height - windowHeight) / 2;
+    
+    glfwSetWindowPos(m_Window, centerX, centerY);
 }
 
 } // namespace LGE

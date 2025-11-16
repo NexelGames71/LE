@@ -32,6 +32,8 @@ For more information, visit: https://nexelgames.com/luma-engine
 
 #include <iostream>
 #include <string>
+#include <functional>
+#include <vector>
 
 namespace LGE {
 
@@ -45,14 +47,24 @@ enum class LogLevel {
 
 class Log {
 public:
+    // Log callbacks (for UI integration)
+    using LogCallback = std::function<void(LogLevel level, const std::string& message)>;
+    
     static void Trace(const std::string& message);
     static void Info(const std::string& message);
     static void Warn(const std::string& message);
     static void Error(const std::string& message);
     static void Fatal(const std::string& message);
+    
+    // Register a callback to receive log messages
+    static void RegisterCallback(LogCallback callback);
+    
+    // Unregister a callback
+    static void UnregisterCallback(LogCallback callback);
 
 private:
     static void Print(LogLevel level, const std::string& message);
+    static std::vector<LogCallback> s_Callbacks;
 };
 
 } // namespace LGE

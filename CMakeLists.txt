@@ -34,12 +34,97 @@ set(CORE_SOURCES
     src/core/Application.cpp
     src/core/Window.cpp
     src/core/Log.cpp
-    src/core/FileSystem.cpp
     src/core/Input.cpp
-    src/core/GameObject.cpp
-    src/core/components/LightPropertiesComponent.cpp
-    src/core/components/LightComponent.cpp
-    src/core/components/SkyLightComponent.cpp
+    src/core/GUID.cpp
+    src/core/GUIDRegistry.cpp
+    
+    # Assets
+    src/core/assets/AssetMetadata.cpp
+    src/core/assets/AssetRegistry.cpp
+    src/core/assets/AssetScanner.cpp
+    src/core/assets/AssetHotReloader.cpp
+    src/core/assets/ImporterFactory.cpp
+    src/core/assets/MetaFile.cpp
+    src/core/assets/ThumbnailGenerator.cpp
+    src/core/assets/DependencyGraph.cpp
+    src/core/assets/DependencyScanner.cpp
+    src/core/assets/AssetDeletionValidator.cpp
+    src/core/assets/AssetDeleter.cpp
+    src/core/assets/AssetReferenceFinder.cpp
+    src/core/assets/AssetSearchIndex.cpp
+    src/core/assets/AssetFilter.cpp
+    src/core/assets/SavedSearch.cpp
+    src/core/assets/AssetCollection.cpp
+    src/core/assets/AssetPackager.cpp
+    src/core/assets/AssetLoader.cpp
+    src/core/assets/ResourceManager.cpp
+    src/core/assets/AsyncAssetLoader.cpp
+    src/core/assets/AssetRegistryCache.cpp
+    src/core/assets/AssetMetadataPool.cpp
+    src/core/assets/AssetValidator.cpp
+    src/core/assets/DependencyGraph.cpp
+    src/core/assets/DependencyScanner.cpp
+    src/core/assets/SavedSearch.cpp
+    src/core/importers/TextureImporter.cpp
+    
+    # FileSystem
+    src/core/filesystem/FileSystem.cpp
+    src/core/filesystem/VirtualFileSystem.cpp
+    src/core/filesystem/FileSystemWatcher.cpp
+    src/core/filesystem/FileChangeDebouncer.cpp
+    src/core/filesystem/FileSystemManager.cpp
+    
+    # Project
+    src/core/project/Project.cpp
+    src/core/project/ProjectDescriptor.cpp
+    src/core/project/ProjectManager.cpp
+    
+    # UI (related to core systems)
+    src/ui/ContentBrowserModel.cpp
+    src/ui/ReferenceViewerWindow.cpp
+    src/ui/ValidationReportWindow.cpp
+)
+
+# Platform-specific file watcher implementations
+if(WIN32)
+    list(APPEND CORE_SOURCES
+        src/core/filesystem/FileSystemWatcher_Windows.cpp
+    )
+elseif(UNIX AND NOT APPLE)
+    list(APPEND CORE_SOURCES
+        src/core/filesystem/FileSystemWatcher_Linux.cpp
+    )
+elseif(APPLE)
+    list(APPEND CORE_SOURCES
+        src/core/filesystem/FileSystemWatcher_macOS.cpp
+    )
+endif()
+
+set(CORE_SOURCES ${CORE_SOURCES}
+    # Core systems
+    src/core/Layer.cpp
+    src/core/LayerStack.cpp
+    src/core/SplashScreen.cpp
+    # Scene/ECS
+    src/core/scene/Component.cpp
+    src/core/scene/ComponentFactory.cpp
+    src/core/scene/GameObject.cpp
+    src/core/scene/World.cpp
+    src/core/scene/SceneManager.cpp
+    src/core/scene/components/Transform.cpp
+    src/core/scene/components/LightPropertiesComponent.cpp
+    src/core/scene/components/LightComponent.cpp
+    src/core/scene/components/SkyLightComponent.cpp
+    src/core/scene/components/FogComponent.cpp
+    src/core/scene/components/MeshRenderer.cpp
+    src/core/scene/components/CameraComponent.cpp
+    src/core/scene/components/Rigidbody.cpp
+    src/core/scene/components/Collider.cpp
+    src/core/scene/components/BoxCollider.cpp
+    src/core/scene/components/SphereCollider.cpp
+    src/core/scene/components/CapsuleCollider.cpp
+    src/core/scene/components/ScriptComponent.cpp
+    src/core/scene/components/PlayerController.cpp
 )
 
 set(RENDERING_SOURCES
@@ -53,15 +138,16 @@ set(RENDERING_SOURCES
     src/rendering/CameraController.cpp
     src/rendering/Skybox.cpp
     src/rendering/Texture.cpp
+    src/rendering/TextureManager.cpp
     src/rendering/DirectionalLight.cpp
     src/rendering/Framebuffer.cpp
     src/rendering/Material.cpp
     src/rendering/GridRenderer.cpp
-    src/rendering/Luminite/LuminiteSubsystem.cpp
-    src/rendering/Luminite/SkyLightSubsystem.cpp
-    src/rendering/Luminite/ShadowSystem.cpp
+    src/rendering/Mesh.cpp
     src/rendering/PostProcessor.cpp
     src/rendering/ExposureSystem.cpp
+    src/rendering/LightSystem.cpp
+    src/rendering/LightingSettings.cpp
 )
 
 set(UI_SOURCES
@@ -69,13 +155,19 @@ set(UI_SOURCES
     src/ui/SceneViewport.cpp
     src/ui/Hierarchy.cpp
     src/ui/Inspector.cpp
+    src/ui/HierarchyWindow.cpp
+    src/ui/InspectorWindow.cpp
     src/ui/ContentBrowser.cpp
+    src/ui/TextureImporter.cpp
+    src/ui/MaterialEditor.cpp
     src/ui/Toolbar.cpp
     src/ui/MainMenuBar.cpp
     src/ui/Details.cpp
     src/ui/Profiler.cpp
+    src/ui/Console.cpp
     src/ui/Preferences.cpp
     src/ui/ProjectSettings.cpp
+    src/ui/ProjectBrowser.cpp
 )
 
 # ImGui sources
@@ -148,6 +240,33 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/assets
         $<TARGET_FILE_DIR:LGE_Example>/assets
+    )
+    
+    # Copy Project Browser icons
+    add_custom_command(TARGET LGE_Example POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+        $<TARGET_FILE_DIR:LGE_Example>/assets/icons
+    )
+    
+    # Copy blank project thumbnail and preview
+    add_custom_command(TARGET LGE_Example POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_BINARY_DIR}/temp_icons/imgs/GameProjectDialog/blank_project_thumbnail.png
+        $<TARGET_FILE_DIR:LGE_Example>/assets/icons/blank_project_thumbnail.png
+    )
+    
+    add_custom_command(TARGET LGE_Example POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_BINARY_DIR}/temp_icons/imgs/GameProjectDialog/blank_project_preview.png
+        $<TARGET_FILE_DIR:LGE_Example>/assets/icons/blank_project_preview.png
+    )
+    
+    # Copy folder icon if it exists
+    add_custom_command(TARGET LGE_Example POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${CMAKE_BINARY_DIR}/temp_icons/imgs/Icons/Folders/Folder_Base_256x.png
+        $<TARGET_FILE_DIR:LGE_Example>/assets/icons/Folder_Base_256x.png
+        COMMENT "Copying folder icon"
     )
 endif()
 

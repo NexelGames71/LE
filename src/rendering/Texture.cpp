@@ -37,6 +37,7 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include <algorithm>
 #include <vector>
 #include <cstring>
+#include <cctype>
 
 // Provide minimal zlib-compatible stubs for tinyexr when miniz is disabled
 #define TINYEXR_USE_MINIZ 0
@@ -76,6 +77,11 @@ Texture::Texture()
     , m_Height(0)
     , m_IsHDR(false)
     , m_IsCubemap(false)
+    , m_GammaCorrected(true)
+    , m_MinFilter(TextureFilter::Linear)
+    , m_MagFilter(TextureFilter::Linear)
+    , m_WrapS(TextureWrap::Repeat)
+    , m_WrapT(TextureWrap::Repeat)
 {
 }
 
@@ -383,14 +389,19 @@ bool Texture::LoadImageFile(const std::string& filepath) {
     glGenTextures(1, &m_RendererID);
     glBindTexture(GL_TEXTURE_2D, m_RendererID);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    // Use SRGB format if gamma correction is enabled (default)
+    GLenum internalFormat = m_GammaCorrected ? GL_SRGB8_ALPHA8 : GL_RGBA8;
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Apply default parameters (will be overridden if Load() is used)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, WrapToGL(m_WrapS));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, WrapToGL(m_WrapT));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, FilterToGL(m_MinFilter));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, FilterToGL(m_MagFilter));
     
     glBindTexture(GL_TEXTURE_2D, 0);
+    
+    m_FilePath = filepath;
     
     stbi_image_free(data);
     
@@ -488,6 +499,106 @@ void Texture::GenerateMipmaps() const {
         glBindTexture(GL_TEXTURE_2D, m_RendererID);
         glGenerateMipmap(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+}
+
+// Load from TextureSpec
+bool Texture::Load(const TextureSpec& spec) {
+    m_FilePath = spec.filepath;
+    m_GammaCorrected = spec.gammaCorrected;
+    m_MinFilter = spec.minFilter;
+    m_MagFilter = spec.magFilter;
+    m_WrapS = spec.wrapS;
+    m_WrapT = spec.wrapT;
+    
+    // Determine file type and load
+    std::string ext = spec.filepath.substr(spec.filepath.find_last_of(".") + 1);
+    std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+    
+    bool loaded = false;
+    if (ext == "hdr" || ext == "exr") {
+        loaded = LoadHDRImage(spec.filepath);
+    } else {
+        loaded = LoadImageFile(spec.filepath);
+    }
+    
+    if (loaded) {
+        ApplyTextureParameters();
+        if (spec.generateMipmaps && !m_IsHDR) {
+            GenerateMipmaps();
+        }
+    }
+    
+    return loaded;
+}
+
+// Set texture filtering
+void Texture::SetFilter(TextureFilter minFilter, TextureFilter magFilter) {
+    m_MinFilter = minFilter;
+    m_MagFilter = magFilter;
+    if (m_RendererID != 0) {
+        ApplyTextureParameters();
+    }
+}
+
+// Set texture wrapping
+void Texture::SetWrap(TextureWrap wrapS, TextureWrap wrapT) {
+    m_WrapS = wrapS;
+    m_WrapT = wrapT;
+    if (m_RendererID != 0) {
+        ApplyTextureParameters();
+    }
+}
+
+// Set gamma correction
+void Texture::SetGammaCorrected(bool gammaCorrected) {
+    m_GammaCorrected = gammaCorrected;
+    // Note: Gamma correction is applied at load time via internal format
+    // This flag is stored for reference but doesn't change existing texture
+}
+
+// Apply texture parameters to OpenGL
+void Texture::ApplyTextureParameters() {
+    if (m_RendererID == 0) return;
+    
+    GLenum target = m_IsCubemap ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D;
+    glBindTexture(target, m_RendererID);
+    
+    // Set filtering
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, FilterToGL(m_MinFilter));
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, FilterToGL(m_MagFilter));
+    
+    // Set wrapping
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, WrapToGL(m_WrapS));
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, WrapToGL(m_WrapT));
+    if (m_IsCubemap) {
+        glTexParameteri(target, GL_TEXTURE_WRAP_R, WrapToGL(m_WrapS)); // Use wrapS for R
+    }
+    
+    glBindTexture(target, 0);
+}
+
+// Convert TextureFilter to OpenGL constant
+uint32_t Texture::FilterToGL(TextureFilter filter) const {
+    switch (filter) {
+        case TextureFilter::Nearest: return GL_NEAREST;
+        case TextureFilter::Linear: return GL_LINEAR;
+        case TextureFilter::NearestMipmapNearest: return GL_NEAREST_MIPMAP_NEAREST;
+        case TextureFilter::LinearMipmapNearest: return GL_LINEAR_MIPMAP_NEAREST;
+        case TextureFilter::NearestMipmapLinear: return GL_NEAREST_MIPMAP_LINEAR;
+        case TextureFilter::LinearMipmapLinear: return GL_LINEAR_MIPMAP_LINEAR;
+        default: return GL_LINEAR;
+    }
+}
+
+// Convert TextureWrap to OpenGL constant
+uint32_t Texture::WrapToGL(TextureWrap wrap) const {
+    switch (wrap) {
+        case TextureWrap::Repeat: return GL_REPEAT;
+        case TextureWrap::ClampToEdge: return GL_CLAMP_TO_EDGE;
+        case TextureWrap::ClampToBorder: return GL_CLAMP_TO_BORDER;
+        case TextureWrap::MirroredRepeat: return GL_MIRRORED_REPEAT;
+        default: return GL_REPEAT;
     }
 }
 

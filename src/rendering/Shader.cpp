@@ -30,6 +30,7 @@ For more information, visit: https://nexelgames.com/luma-engine
 
 #include "LGE/rendering/Shader.h"
 #include "LGE/core/Log.h"
+#include "LGE/core/filesystem/FileSystem.h"
 #include <glad/glad.h>
 #include <sstream>
 #include <fstream>
@@ -78,6 +79,12 @@ void Shader::SetUniform4f(const std::string& name, float v0, float v1, float v2,
 
 void Shader::SetUniformMat4(const std::string& name, const float* matrix) {
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, matrix);
+}
+
+void Shader::SetTexture(const std::string& name, uint32_t textureID, uint32_t slot) {
+    glActiveTexture(GL_TEXTURE0 + slot);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    SetUniform1i(name, static_cast<int>(slot));
 }
 
 void Shader::Dispatch(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ) const {
@@ -176,6 +183,48 @@ int Shader::GetUniformLocation(const std::string& name) {
     }
     m_UniformLocationCache[name] = location;
     return location;
+}
+
+// Static factory method to load shader from files
+std::shared_ptr<Shader> Shader::CreateFromFiles(const std::string& vertexPath, const std::string& fragmentPath) {
+    std::string vertexSrc = FileSystem::ReadFile(vertexPath);
+    std::string fragmentSrc = FileSystem::ReadFile(fragmentPath);
+    
+    if (vertexSrc.empty()) {
+        Log::Error("Failed to load vertex shader: " + vertexPath);
+        return nullptr;
+    }
+    
+    if (fragmentSrc.empty()) {
+        Log::Error("Failed to load fragment shader: " + fragmentPath);
+        return nullptr;
+    }
+    
+    auto shader = std::make_shared<Shader>(vertexSrc, fragmentSrc);
+    if (shader->GetRendererID() == 0) {
+        Log::Error("Failed to compile shader from files: " + vertexPath + ", " + fragmentPath);
+        return nullptr;
+    }
+    
+    return shader;
+}
+
+// Static factory method to load compute shader from file
+std::shared_ptr<Shader> Shader::CreateFromFiles(const std::string& computePath) {
+    std::string computeSrc = FileSystem::ReadFile(computePath);
+    
+    if (computeSrc.empty()) {
+        Log::Error("Failed to load compute shader: " + computePath);
+        return nullptr;
+    }
+    
+    auto shader = std::make_shared<Shader>(computeSrc);
+    if (shader->GetRendererID() == 0) {
+        Log::Error("Failed to compile compute shader from file: " + computePath);
+        return nullptr;
+    }
+    
+    return shader;
 }
 
 } // namespace LGE

@@ -32,14 +32,21 @@ For more information, visit: https://nexelgames.com/luma-engine
 
 #include <string>
 #include <unordered_map>
+#include <memory>
 #include <cstdint>
 
 namespace LGE {
 
 class Shader {
 public:
+    // Constructors from source strings
     Shader(const std::string& vertexSrc, const std::string& fragmentSrc);
     Shader(const std::string& computeSrc);  // Compute shader constructor
+    
+    // Static factory methods for loading from files
+    static std::shared_ptr<Shader> CreateFromFiles(const std::string& vertexPath, const std::string& fragmentPath);
+    static std::shared_ptr<Shader> CreateFromFiles(const std::string& computePath);
+    
     ~Shader();
 
     void Bind() const;
@@ -53,6 +60,9 @@ public:
     void SetUniform3f(const std::string& name, float v0, float v1, float v2);
     void SetUniform4f(const std::string& name, float v0, float v1, float v2, float v3);
     void SetUniformMat4(const std::string& name, const float* matrix);
+    
+    // Texture binding helper
+    void SetTexture(const std::string& name, uint32_t textureID, uint32_t slot);
 
     uint32_t GetRendererID() const { return m_RendererID; }
     bool IsComputeShader() const { return m_IsCompute; }

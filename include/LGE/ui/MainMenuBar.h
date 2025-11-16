@@ -34,6 +34,7 @@ namespace LGE {
 
 class Preferences;
 class ProjectSettings;
+class TextureImporter;
 
 class MainMenuBar {
 public:
@@ -43,10 +44,12 @@ public:
     void OnUIRender();
     void SetPreferences(Preferences* preferences) { m_Preferences = preferences; }
     void SetProjectSettings(ProjectSettings* projectSettings) { m_ProjectSettings = projectSettings; }
+    void SetTextureImporter(TextureImporter* importer) { m_TextureImporter = importer; }
 
 private:
     Preferences* m_Preferences;
     ProjectSettings* m_ProjectSettings;
+    TextureImporter* m_TextureImporter;
 };
 
 } // namespace LGE

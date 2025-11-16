@@ -50,9 +50,6 @@ class GameObject;
 class PostProcessor;
 class ExposureSystem;
 
-namespace Luminite {
-    class LuminiteSubsystem;
-}
 
 class SceneViewport {
 public:
@@ -81,8 +78,6 @@ public:
     void RenderImGuizmo(); // Render ImGuizmo for selected object
     bool IsGridVisible() const { return m_ShowGrid; }
     bool IsLit() const { return m_IsLit; }
-    
-    void SetLuminiteSubsystem(Luminite::LuminiteSubsystem* subsystem);
 
 private:
     void LoadIcons(); // Load icon textures
@@ -117,9 +112,6 @@ private:
     bool m_IsLit; // Lighting enabled/disabled
     int m_ProjectionType; // 0=Perspective, 1=Orthographic
     std::shared_ptr<Texture> m_LitIcon;
-    
-    // Luminite subsystem (for exposure overlay)
-    Luminite::LuminiteSubsystem* m_LuminiteSubsystem;
     
     // Selection and transform
     GameObject* m_SelectedObject;

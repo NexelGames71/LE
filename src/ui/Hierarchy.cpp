@@ -29,7 +29,7 @@ For more information, visit: https://nexelgames.com/luma-engine
 */
 
 #include "LGE/ui/Hierarchy.h"
-#include "LGE/core/GameObject.h"
+#include "LGE/core/scene/GameObject.h"
 #include "LGE/rendering/Texture.h"
 #include "imgui.h"
 
@@ -131,6 +131,74 @@ void Hierarchy::OnUIRender() {
                     m_OnCreateGameObject("Empty");
                 }
             }
+            
+            ImGui::Separator();
+            
+            // 3D Object submenu
+            if (ImGui::BeginMenu("3D Object")) {
+                if (ImGui::MenuItem("Cube")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Cube");
+                    }
+                }
+                if (ImGui::MenuItem("Sphere")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Sphere");
+                    }
+                }
+                if (ImGui::MenuItem("Plane")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Plane");
+                    }
+                }
+                if (ImGui::MenuItem("Cylinder")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Cylinder");
+                    }
+                }
+                if (ImGui::MenuItem("Capsule")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Capsule");
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            
+            ImGui::Separator();
+            
+            // Light submenu
+            if (ImGui::BeginMenu("Light")) {
+                if (ImGui::MenuItem("Directional Light")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("DirectionalLight");
+                    }
+                }
+                if (ImGui::MenuItem("Point Light")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("PointLight");
+                    }
+                }
+                if (ImGui::MenuItem("Spot Light")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("SpotLight");
+                    }
+                }
+                if (ImGui::MenuItem("Sky Light")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("SkyLight");
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            
+            ImGui::Separator();
+            
+            if (ImGui::MenuItem("Camera")) {
+                if (m_OnCreateGameObject) {
+                    m_OnCreateGameObject("Camera");
+                }
+            }
+            
             ImGui::EndPopup();
         }
         
@@ -162,6 +230,74 @@ void Hierarchy::OnUIRender() {
                     m_OnCreateGameObject("Empty");
                 }
             }
+            
+            ImGui::Separator();
+            
+            // 3D Object submenu
+            if (ImGui::BeginMenu("3D Object")) {
+                if (ImGui::MenuItem("Cube")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Cube");
+                    }
+                }
+                if (ImGui::MenuItem("Sphere")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Sphere");
+                    }
+                }
+                if (ImGui::MenuItem("Plane")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Plane");
+                    }
+                }
+                if (ImGui::MenuItem("Cylinder")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Cylinder");
+                    }
+                }
+                if (ImGui::MenuItem("Capsule")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("Capsule");
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            
+            ImGui::Separator();
+            
+            // Light submenu
+            if (ImGui::BeginMenu("Light")) {
+                if (ImGui::MenuItem("Directional Light")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("DirectionalLight");
+                    }
+                }
+                if (ImGui::MenuItem("Point Light")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("PointLight");
+                    }
+                }
+                if (ImGui::MenuItem("Spot Light")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("SpotLight");
+                    }
+                }
+                if (ImGui::MenuItem("Sky Light")) {
+                    if (m_OnCreateGameObject) {
+                        m_OnCreateGameObject("SkyLight");
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            
+            ImGui::Separator();
+            
+            if (ImGui::MenuItem("Camera")) {
+                if (m_OnCreateGameObject) {
+                    m_OnCreateGameObject("Camera");
+                }
+            }
+            
             ImGui::EndPopup();
         }
     }

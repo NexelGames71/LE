@@ -31,7 +31,7 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include "LGE/rendering/Skybox.h"
 #include "LGE/rendering/Camera.h"
 #include "LGE/rendering/Texture.h"
-#include "LGE/core/FileSystem.h"
+#include "LGE/core/filesystem/FileSystem.h"
 #include "LGE/core/Log.h"
 #include <glad/glad.h>
 #include <vector>

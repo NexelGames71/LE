@@ -37,6 +37,7 @@ namespace LGE {
 
 class Window;
 class Renderer;
+class LayerStack;
 
 class Application {
 public:
@@ -57,9 +58,18 @@ public:
     virtual void OnRender() {}
     virtual void OnEvent() {}
 
+    // Layer Stack access
+    LayerStack& GetLayerStack() { return *m_LayerStack; }
+    const LayerStack& GetLayerStack() const { return *m_LayerStack; }
+
+    // Window access
+    Window* GetWindow() { return m_Window.get(); }
+    const Window* GetWindow() const { return m_Window.get(); }
+
 protected:
     std::unique_ptr<Window> m_Window;
     std::unique_ptr<Renderer> m_Renderer;
+    std::unique_ptr<LayerStack> m_LayerStack;
     bool m_Running;
     std::string m_Name;
 };

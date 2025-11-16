@@ -25,7 +25,7 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include "LGE/rendering/VertexArray.h"
 #include "LGE/rendering/VertexBuffer.h"
 #include "LGE/rendering/IndexBuffer.h"
-#include "LGE/core/FileSystem.h"
+#include "LGE/core/filesystem/FileSystem.h"
 #include "LGE/core/Log.h"
 #include <glad/glad.h>
 

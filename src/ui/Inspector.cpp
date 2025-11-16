@@ -29,14 +29,11 @@ For more information, visit: https://nexelgames.com/luma-engine
 */
 
 #include "LGE/ui/Inspector.h"
-#include "LGE/core/GameObject.h"
-#include "LGE/core/Component.h"
-#include "LGE/core/components/LightPropertiesComponent.h"
+#include "LGE/core/scene/GameObject.h"
+#include "LGE/core/scene/Component.h"
+#include "LGE/core/scene/components/LightPropertiesComponent.h"
 #include "LGE/math/Vector.h"
 #include "LGE/rendering/Texture.h"
-#include "LGE/rendering/Luminite/LuminiteSubsystem.h"
-#include "LGE/rendering/Luminite/LuminiteComponents.h"
-#include "LGE/rendering/Luminite/ShadowSystem.h"
 #include "imgui.h"
 #include <string>
 #include <cmath>
@@ -45,8 +42,6 @@ namespace LGE {
 
 Inspector::Inspector()
     : m_SelectedObject(nullptr)
-    , m_LuminiteSubsystem(nullptr)
-    , m_ShadowSystem(nullptr)
     , m_IconsLoaded(false)
 {
 }
@@ -189,16 +184,6 @@ void Inspector::OnUIRender() {
             rotationChanged = true;
         }
         
-        // Update light if rotation changed and this is a light object
-        if (rotationChanged && m_SelectedObject) {
-            bool isLightObject = (m_SelectedObject->GetName().find("Light") != std::string::npos);
-            if (isLightObject) {
-                auto* lightProps = m_SelectedObject->GetComponent<LightPropertiesComponent>();
-                if (lightProps) {
-                    UpdateLightInLuminite(m_SelectedObject, lightProps);
-                }
-            }
-        }
         
         ImGui::PopItemWidth();
         ImGui::Spacing();
@@ -446,7 +431,6 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
                 if (ImGui::ColorPicker3("##LightColorPicker", colorArray, 
                     ImGuiColorEditFlags_PickerHueWheel | ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs)) {
                     lightProps->SetColor(Math::Vector3(colorArray[0], colorArray[1], colorArray[2]));
-                    UpdateLightInLuminite(m_SelectedObject, lightProps);
                 }
                 
                 ImGui::EndPopup();
@@ -458,7 +442,6 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
             ImGui::Text("RGB");
             if (ImGui::DragFloat3("##LightColorRGB", colorArray, 0.01f, 0.0f, 1.0f)) {
                 lightProps->SetColor(Math::Vector3(colorArray[0], colorArray[1], colorArray[2]));
-                UpdateLightInLuminite(m_SelectedObject, lightProps);
             }
             ImGui::PopItemWidth();
             
@@ -468,7 +451,6 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
             ImGui::PushItemWidth(-1);
             if (ImGui::DragFloat("##LightIntensity", &intensity, 0.1f, 0.0f, 10.0f)) {
                 lightProps->SetIntensity(intensity);
-                UpdateLightInLuminite(m_SelectedObject, lightProps);
             }
             ImGui::PopItemWidth();
             
@@ -481,7 +463,6 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
                 // Update color based on temperature
                 Math::Vector3 tempColor = lightProps->GetColorFromTemperature();
                 lightProps->SetColor(tempColor);
-                UpdateLightInLuminite(m_SelectedObject, lightProps);
             }
             ImGui::PopItemWidth();
             
@@ -491,7 +472,6 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
             ImGui::PushItemWidth(-1);
             if (ImGui::DragFloat("##LightIndirectIntensity", &indirectIntensity, 0.1f, 0.0f, 10.0f)) {
                 lightProps->SetIndirectIntensity(indirectIntensity);
-                UpdateLightInLuminite(m_SelectedObject, lightProps);
             }
             ImGui::PopItemWidth();
             
@@ -499,30 +479,6 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
             bool castShadows = lightProps->GetCastShadows();
             if (ImGui::Checkbox("Cast Shadows", &castShadows)) {
                 lightProps->SetCastShadows(castShadows);
-                UpdateLightInLuminite(m_SelectedObject, lightProps);
-                
-                // Update shadow system registration
-                if (m_ShadowSystem) {
-                    if (castShadows) {
-                        // Calculate direction from rotation
-                        Math::Vector3 rotation = m_SelectedObject->GetRotation();
-                        float rotX = rotation.x * 3.14159f / 180.0f;
-                        float rotY = rotation.y * 3.14159f / 180.0f;
-                        Math::Vector3 direction = Math::Vector3(
-                            std::sin(rotY) * std::cos(rotX),
-                            -std::sin(rotX),
-                            std::cos(rotY) * std::cos(rotX)
-                        );
-                        m_ShadowSystem->RegisterDirectionalLightShadow(
-                            m_SelectedObject,
-                            direction,
-                            m_SelectedObject->GetPosition(),
-                            4  // 4 cascades
-                        );
-                    } else {
-                        m_ShadowSystem->UnregisterLightShadow(m_SelectedObject);
-                    }
-                }
             }
             
             // Volumetric Scattering
@@ -531,7 +487,6 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
             ImGui::PushItemWidth(-1);
             if (ImGui::DragFloat("##LightVolumetricScattering", &volumetricScattering, 0.1f, 0.0f, 10.0f)) {
                 lightProps->SetVolumetricScattering(volumetricScattering);
-                UpdateLightInLuminite(m_SelectedObject, lightProps);
             }
             ImGui::PopItemWidth();
             
@@ -541,46 +496,10 @@ void Inspector::RenderLightProperties(LightPropertiesComponent* lightProps) {
             ImGui::PushItemWidth(-1);
             if (ImGui::DragFloat("##LightSpecularContribution", &specularContribution, 0.1f, 0.0f, 10.0f)) {
                 lightProps->SetSpecularContribution(specularContribution);
-                UpdateLightInLuminite(m_SelectedObject, lightProps);
             }
             ImGui::PopItemWidth();
 }
 
-void Inspector::UpdateLightInLuminite(GameObject* obj, LightPropertiesComponent* lightProps) {
-    if (!obj || !lightProps || !m_LuminiteSubsystem) return;
-    
-    // Check if this is a light object
-    bool isLightObject = (obj->GetName().find("Light") != std::string::npos);
-    if (!isLightObject) return;
-    
-    // Calculate direction from rotation
-    Math::Vector3 rotation = obj->GetRotation();
-    float rotX = rotation.x * 3.14159f / 180.0f;
-    float rotY = rotation.y * 3.14159f / 180.0f;
-    
-    Math::Vector3 direction = Math::Vector3(
-        std::sin(rotY) * std::cos(rotX),
-        -std::sin(rotX),
-        std::cos(rotY) * std::cos(rotX)
-    );
-    
-    // Create Luminite directional light
-    Luminite::DirectionalLight luminiteDirLight;
-    luminiteDirLight.color = lightProps->GetColor();
-    luminiteDirLight.intensity = lightProps->GetIntensity();
-    luminiteDirLight.direction = direction;
-    luminiteDirLight.castShadows = lightProps->GetCastShadows();
-    luminiteDirLight.enabled = lightProps->IsEnabled();
-    
-    // Re-register the light (this will update it)
-    m_LuminiteSubsystem->UnregisterLight(obj);
-    m_LuminiteSubsystem->RegisterDirectionalLight(
-        obj,
-        luminiteDirLight,
-        obj->GetPosition(),
-        direction
-    );
-}
 
 } // namespace LGE
 

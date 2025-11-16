@@ -31,6 +31,7 @@ For more information, visit: https://nexelgames.com/luma-engine
 #include "LGE/ui/MainMenuBar.h"
 #include "LGE/ui/Preferences.h"
 #include "LGE/ui/ProjectSettings.h"
+#include "LGE/ui/TextureImporter.h"
 #include "imgui.h"
 
 namespace LGE {
@@ -38,6 +39,7 @@ namespace LGE {
 MainMenuBar::MainMenuBar()
     : m_Preferences(nullptr)
     , m_ProjectSettings(nullptr)
+    , m_TextureImporter(nullptr)
 {
 }
 
@@ -98,6 +100,11 @@ void MainMenuBar::OnUIRender() {
         }
         
         if (ImGui::BeginMenu("Tools")) {
+            if (ImGui::MenuItem("Texture Importer")) {
+                if (m_TextureImporter) {
+                    m_TextureImporter->Toggle();
+                }
+            }
             if (ImGui::MenuItem("Build")) {
                 // Build
             }

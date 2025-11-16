@@ -30,16 +30,17 @@ For more information, visit: https://nexelgames.com/luma-engine
 
 #include "LGE/rendering/Material.h"
 #include "LGE/rendering/Shader.h"
-#include "LGE/core/FileSystem.h"
+#include "LGE/core/filesystem/FileSystem.h"
 #include "LGE/core/Log.h"
 #include <algorithm>
+#include <climits>
 
 namespace LGE {
 
-Material::Material() : m_Name("DefaultMaterial") {
+Material::Material() : m_Name("DefaultMaterial"), m_NextTextureSlot(0) {
 }
 
-Material::Material(const std::string& name) : m_Name(name) {
+Material::Material(const std::string& name) : m_Name(name), m_NextTextureSlot(0) {
 }
 
 Material::~Material() {
@@ -105,6 +106,17 @@ void Material::Bind() const {
     // Upload all Vector4 properties
     for (const auto& prop : m_Vector4Properties) {
         m_Shader->SetUniform4f(prop.first, prop.second.x, prop.second.y, prop.second.z, prop.second.w);
+    }
+
+    // Bind all textures
+    for (const auto& tex : m_TextureProperties) {
+        if (tex.second && tex.second->GetRendererID() != 0) {
+            auto slotIt = m_TextureSlots.find(tex.first);
+            if (slotIt != m_TextureSlots.end()) {
+                uint32_t slot = slotIt->second;
+                m_Shader->SetTexture(tex.first, tex.second->GetRendererID(), slot);
+            }
+        }
     }
 }
 
@@ -176,6 +188,77 @@ std::shared_ptr<Material> Material::CreateDefaultLitMaterial() {
     // Set default material color (medium gray - darker to appear gray with bright lighting)
     material->SetColor("u_MaterialColor", Math::Vector3(0.5f, 0.5f, 0.5f));
     material->SetFloat("u_UseVertexColor", 0.0f); // Use material color, not vertex color
+    
+    return material;
+}
+
+void Material::SetTexture(const std::string& name, std::shared_ptr<Texture> texture, uint32_t slot) {
+    m_TextureProperties[name] = texture;
+    if (slot == static_cast<uint32_t>(-1)) {
+        // Auto-assign slot
+        slot = m_NextTextureSlot++;
+    }
+    m_TextureSlots[name] = slot;
+}
+
+std::shared_ptr<Texture> Material::GetTexture(const std::string& name) const {
+    auto it = m_TextureProperties.find(name);
+    if (it != m_TextureProperties.end()) {
+        return it->second;
+    }
+    return nullptr;
+}
+
+void Material::RemoveFloat(const std::string& name) {
+    m_FloatProperties.erase(name);
+}
+
+void Material::RemoveVector3(const std::string& name) {
+    m_Vector3Properties.erase(name);
+}
+
+void Material::RemoveVector4(const std::string& name) {
+    m_Vector4Properties.erase(name);
+}
+
+void Material::RemoveTexture(const std::string& name) {
+    m_TextureProperties.erase(name);
+    m_TextureSlots.erase(name);
+}
+
+std::shared_ptr<Material> Material::CreateUnlitMaterial() {
+    auto material = std::make_shared<Material>("UnlitMaterial");
+    
+    // Load unlit shader
+    auto shader = Shader::CreateFromFiles("assets/shaders/Unlit.vert", "assets/shaders/Unlit.frag");
+    if (!shader || shader->GetRendererID() == 0) {
+        Log::Error("Failed to create Unlit shader!");
+        return nullptr;
+    }
+    
+    material->SetShader(shader);
+    material->SetColor("u_Color", Math::Vector3(1.0f, 1.0f, 1.0f));
+    
+    return material;
+}
+
+std::shared_ptr<Material> Material::CreatePBRMaterial() {
+    // PBR shader removed - lighting system removed
+    Log::Warn("PBR material creation disabled - lighting system removed");
+    return nullptr;
+}
+
+std::shared_ptr<Material> Material::CreateSkyboxMaterial() {
+    auto material = std::make_shared<Material>("SkyboxMaterial");
+    
+    // Load skybox shader
+    auto shader = Shader::CreateFromFiles("assets/shaders/Skybox.vert", "assets/shaders/Skybox.frag");
+    if (!shader || shader->GetRendererID() == 0) {
+        Log::Error("Failed to create Skybox shader!");
+        return nullptr;
+    }
+    
+    material->SetShader(shader);
     
     return material;
 }

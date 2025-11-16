@@ -60,3 +60,23 @@ SequenceRecorder
 Settings
 Tutorials
 UMG
+
+
+
+Ensure all files are organized properly in their correct folders and subfolders.
+
+
+Implementation Steps:
+
+Create ProjectDescriptor class:
+
+cppclass ProjectDescriptor {
+    std::string projectName;
+    std::string engineVersion;
+    std::string defaultScene;
+    std::vector<std::string> plugins;
+    std::map<std::string, std::string> settings;
+    
+    bool Save(const std::filesystem::path& path);
+    bool Load(const std::filesystem::path& path);
+};

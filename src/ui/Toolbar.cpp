@@ -140,13 +140,28 @@ void Toolbar::OnUIRender() {
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + verticalOffset);
     }
     
+    // Display current scene name on the left
+    float sceneNameWidth = 0.0f;
+    if (!m_CurrentSceneName.empty()) {
+        ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "Scene:");
+        ImGui::SameLine();
+        ImGui::Text("%s", m_CurrentSceneName.c_str());
+        ImGui::SameLine();
+        ImGui::Separator();
+        ImGui::SameLine();
+        sceneNameWidth = ImGui::GetCursorPosX();
+    }
+    
     // Calculate center position for Play, Pause, Stop buttons
     // Use content region to account for padding
     ImVec2 contentRegionMin = ImGui::GetWindowContentRegionMin();
     ImVec2 contentRegionMax = ImGui::GetWindowContentRegionMax();
     float contentWidth = contentRegionMax.x - contentRegionMin.x;
     float buttonGroupWidth = 24.0f * 3.0f + 4.0f * 2.0f; // 3 buttons + 2 spacings
-    float centerX = contentRegionMin.x + (contentWidth - buttonGroupWidth) * 0.5f;
+    
+    // Center buttons in the remaining space after scene name
+    float availableWidth = contentWidth - sceneNameWidth;
+    float centerX = contentRegionMin.x + sceneNameWidth + (availableWidth - buttonGroupWidth) * 0.5f;
     
     // Get current Y position to stay on the same line
     float currentY = ImGui::GetCursorPosY();

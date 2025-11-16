@@ -31,6 +31,7 @@ For more information, visit: https://nexelgames.com/luma-engine
 #pragma once
 
 #include <memory>
+#include <string>
 
 namespace LGE {
 
@@ -42,6 +43,10 @@ public:
     ~Toolbar();
 
     void OnUIRender();
+    
+    // Set the current scene name to display
+    void SetCurrentSceneName(const std::string& sceneName) { m_CurrentSceneName = sceneName; }
+    const std::string& GetCurrentSceneName() const { return m_CurrentSceneName; }
 
 private:
     void LoadIcons();
@@ -50,6 +55,7 @@ private:
     std::shared_ptr<Texture> m_PauseIcon;
     std::shared_ptr<Texture> m_StopIcon;
     bool m_IconsLoaded;
+    std::string m_CurrentSceneName;
 };
 
 } // namespace LGE

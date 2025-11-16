@@ -54,6 +54,10 @@ void UI::Initialize(Window* window) {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;  // Enable docking
     
+    // Set ini filename to persist layout (default is "imgui.ini" in current directory)
+    // This ensures the layout is saved and restored between sessions
+    io.IniFilename = "imgui.ini";
+    
     // Configure modern font - larger size for better readability
     io.Fonts->Clear();
     
@@ -79,10 +83,8 @@ void UI::Initialize(Window* window) {
         io.FontGlobalScale = 1.15f;  // Scale up default font for better readability
     }
     
-    // Build font atlas
-    unsigned char* pixels;
-    int width, height;
-    io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+    // Note: Font atlas building is handled automatically by the renderer backend
+    // Do not call GetTexDataAsRGBA32 here - it will be called by ImGui_ImplOpenGL3_Init
     
     // Modern AAA Game Engine Theme
     ImGuiStyle& style = ImGui::GetStyle();

@@ -65,12 +65,15 @@ public:
 
     uint32_t GetWidth() const { return m_Data.Width; }
     uint32_t GetHeight() const { return m_Data.Height; }
+    void SetSize(uint32_t width, uint32_t height);
+    void CenterOnScreen();
     
     void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
     void SetVSync(bool enabled);
     bool IsVSync() const { return m_Data.VSync; }
 
     GLFWwindow* GetNativeWindow() const { return m_Window; }
+    bool IsValid() const { return m_Window != nullptr; }
 
     bool ShouldClose() const;
 

@@ -124,7 +124,7 @@
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>	</Message>
+      <Message>					Copying folder icon</Message>
       <Command>setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/third_party/glfw/lib/glfw3.dll C:/Users/Public/Downloads/LGE/build/bin/Debug
 if %errorlevel% neq 0 goto :cmEnd
@@ -136,6 +136,42 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/Public/Downloads/LGE/assets C:/Users/Public/Downloads/LGE/build/bin/Debug/assets
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/Public/Downloads/LGE/build/bin/Debug/assets/icons
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/GameProjectDialog/blank_project_thumbnail.png C:/Users/Public/Downloads/LGE/build/bin/Debug/assets/icons/blank_project_thumbnail.png
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/GameProjectDialog/blank_project_preview.png C:/Users/Public/Downloads/LGE/build/bin/Debug/assets/icons/blank_project_preview.png
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/Icons/Folders/Folder_Base_256x.png C:/Users/Public/Downloads/LGE/build/bin/Debug/assets/icons/Folder_Base_256x.png
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -203,7 +239,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>	</Message>
+      <Message>					Copying folder icon</Message>
       <Command>setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/third_party/glfw/lib/glfw3.dll C:/Users/Public/Downloads/LGE/build/bin/Release
 if %errorlevel% neq 0 goto :cmEnd
@@ -215,6 +251,42 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/Public/Downloads/LGE/assets C:/Users/Public/Downloads/LGE/build/bin/Release/assets
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/Public/Downloads/LGE/build/bin/Release/assets/icons
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/GameProjectDialog/blank_project_thumbnail.png C:/Users/Public/Downloads/LGE/build/bin/Release/assets/icons/blank_project_thumbnail.png
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/GameProjectDialog/blank_project_preview.png C:/Users/Public/Downloads/LGE/build/bin/Release/assets/icons/blank_project_preview.png
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/Icons/Folders/Folder_Base_256x.png C:/Users/Public/Downloads/LGE/build/bin/Release/assets/icons/Folder_Base_256x.png
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -282,7 +354,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>	</Message>
+      <Message>					Copying folder icon</Message>
       <Command>setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/third_party/glfw/lib/glfw3.dll C:/Users/Public/Downloads/LGE/build/bin/MinSizeRel
 if %errorlevel% neq 0 goto :cmEnd
@@ -294,6 +366,42 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/Public/Downloads/LGE/assets C:/Users/Public/Downloads/LGE/build/bin/MinSizeRel/assets
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/Public/Downloads/LGE/build/bin/MinSizeRel/assets/icons
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/GameProjectDialog/blank_project_thumbnail.png C:/Users/Public/Downloads/LGE/build/bin/MinSizeRel/assets/icons/blank_project_thumbnail.png
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/GameProjectDialog/blank_project_preview.png C:/Users/Public/Downloads/LGE/build/bin/MinSizeRel/assets/icons/blank_project_preview.png
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/Icons/Folders/Folder_Base_256x.png C:/Users/Public/Downloads/LGE/build/bin/MinSizeRel/assets/icons/Folder_Base_256x.png
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -360,7 +468,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ProxyFileName>%(Filename)_p.c</ProxyFileName>
     </Midl>
     <PostBuildEvent>
-      <Message>	</Message>
+      <Message>					Copying folder icon</Message>
       <Command>setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/third_party/glfw/lib/glfw3.dll C:/Users/Public/Downloads/LGE/build/bin/RelWithDebInfo
 if %errorlevel% neq 0 goto :cmEnd
@@ -372,6 +480,42 @@ exit /b %1
 if %errorlevel% neq 0 goto :VCEnd
 setlocal
 "C:\Program Files\CMake\bin\cmake.exe" -E copy_directory C:/Users/Public/Downloads/LGE/assets C:/Users/Public/Downloads/LGE/build/bin/RelWithDebInfo/assets
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E make_directory C:/Users/Public/Downloads/LGE/build/bin/RelWithDebInfo/assets/icons
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/GameProjectDialog/blank_project_thumbnail.png C:/Users/Public/Downloads/LGE/build/bin/RelWithDebInfo/assets/icons/blank_project_thumbnail.png
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/GameProjectDialog/blank_project_preview.png C:/Users/Public/Downloads/LGE/build/bin/RelWithDebInfo/assets/icons/blank_project_preview.png
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -E copy_if_different C:/Users/Public/Downloads/LGE/build/temp_icons/imgs/Icons/Folders/Folder_Base_256x.png C:/Users/Public/Downloads/LGE/build/bin/RelWithDebInfo/assets/icons/Folder_Base_256x.png
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone

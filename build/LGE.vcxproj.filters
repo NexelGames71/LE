@@ -10,22 +10,187 @@
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\FileSystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\GameObject.cpp">
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\GUID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\LightPropertiesComponent.cpp">
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\GUIDRegistry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\LightComponent.cpp">
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetMetadata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\components\SkyLightComponent.cpp">
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetRegistry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetScanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetHotReloader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\ImporterFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\MetaFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\ThumbnailGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\DependencyGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\DependencyScanner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetDeletionValidator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetDeleter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetReferenceFinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetSearchIndex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\SavedSearch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetCollection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetPackager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\ResourceManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AsyncAssetLoader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetRegistryCache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetMetadataPool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\assets\AssetValidator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\importers\TextureImporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\filesystem\FileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\filesystem\VirtualFileSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\filesystem\FileSystemWatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\filesystem\FileChangeDebouncer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\filesystem\FileSystemManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\project\Project.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\project\ProjectDescriptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\project\ProjectManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\ContentBrowserModel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\ReferenceViewerWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\ValidationReportWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\filesystem\FileSystemWatcher_Windows.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\Layer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\LayerStack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\SplashScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\Component.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\ComponentFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\GameObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\World.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\SceneManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\Transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\LightPropertiesComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\LightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\SkyLightComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\FogComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\MeshRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\CameraComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\Rigidbody.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\Collider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\BoxCollider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\SphereCollider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\CapsuleCollider.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\ScriptComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\core\scene\components\PlayerController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Renderer.cpp">
@@ -58,6 +223,9 @@
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\TextureManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\DirectionalLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -70,19 +238,19 @@
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\GridRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Luminite\LuminiteSubsystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Luminite\SkyLightSubsystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Luminite\ShadowSystem.cpp">
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\Mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\PostProcessor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\ExposureSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\LightSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\rendering\LightingSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\math\Matrix.cpp">
@@ -100,7 +268,19 @@
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\Inspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\HierarchyWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\InspectorWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\ContentBrowser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\TextureImporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\MaterialEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\Toolbar.cpp">
@@ -115,10 +295,16 @@
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\Profiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\Console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\Preferences.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\ProjectSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Public\Downloads\LGE\src\ui\ProjectBrowser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="C:\Users\Public\Downloads\LGE\third_party\imgui\imgui.cpp">
